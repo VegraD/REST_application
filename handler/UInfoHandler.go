@@ -3,6 +3,7 @@ package handler
 import (
 	"Assignment-1/structs"
 	"encoding/json"
+	"log"
 	"net/http"
 )
 
@@ -11,6 +12,7 @@ func UInfoHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "Method "+r.Method+"is not supported. At this current time, only "+http.MethodGet+
 			"are supported", http.StatusNotImplemented)
+		return
 	} else {
 		handleGetRequestN(w, r)
 	}
@@ -18,6 +20,7 @@ func UInfoHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleGetRequest(w http.ResponseWriter, r *http.Request) {
+	log.Println(r.URL.Path)
 	university := structs.UniAndCountry{
 		Name:     "NTNU",
 		Country:  "Norway",
