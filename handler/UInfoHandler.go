@@ -19,8 +19,6 @@ func UInfoHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleGetRequest(w http.ResponseWriter, r *http.Request) {
-
-	//TODO: Write struct for university information
 	university := University{
 		Name:     "NTNU",
 		Country:  "Norway",
