@@ -25,3 +25,5 @@ type Country struct {
 	Borders   []string               `json:"borders"`
 	Maps      map[string]string      `json:"maps"`
 }
+
+//TODO: Either implement marshalling/combining country and university below for easier workflow

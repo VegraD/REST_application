@@ -5,9 +5,23 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"strings"
 )
 
 func UInfoHandler(w http.ResponseWriter, r *http.Request) {
+
+	parts := strings.Split(r.URL.Path, "/")
+
+	if len(parts) != 5 {
+		//ERROR, NEED ONE MORE ARGUMENT
+	}
+
+	value := parts[4]
+	if len(value) == 0 {
+		//ERROR, VALUE IS NULL AND NOT A VALID COUNTRY
+	}
+
+	//if()
 
 	if r.Method != http.MethodGet {
 		http.Error(w, "Method "+r.Method+"is not supported. At this current time, only "+http.MethodGet+
