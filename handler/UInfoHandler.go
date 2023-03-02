@@ -1,15 +1,34 @@
 package handler
 
 import (
-	"Assignment-1/structs"
+	"Assignment-1/DB"
 	"encoding/json"
-	"log"
+	"fmt"
 	"net/http"
 	"strings"
 )
 
 func UInfoHandler(w http.ResponseWriter, r *http.Request) {
 
+	stdOutput := "Hello! Welcome to page!"
+
+	if r.Method != http.MethodGet {
+		http.Error(w, "Method "+r.Method+"is not supported. At this current time, only "+http.MethodGet+
+			"are supported", http.StatusNotImplemented)
+		return
+	} else {
+		_, err := fmt.Fprintf(w, stdOutput)
+		if err != nil {
+			http.Error(w, "Error while returning output", http.StatusInternalServerError)
+		}
+		handleGetRequestN(w, r)
+	}
+
+}
+
+func handleGetRequest(w http.ResponseWriter, r *http.Request) {
+
+	w.Header().Add("content-type", "application/json")
 	parts := strings.Split(r.URL.Path, "/")
 
 	if len(parts) != 5 {
@@ -21,38 +40,13 @@ func UInfoHandler(w http.ResponseWriter, r *http.Request) {
 		//ERROR, VALUE IS NULL AND NOT A VALID COUNTRY
 	}
 
-	//if()
-
-	if r.Method != http.MethodGet {
-		http.Error(w, "Method "+r.Method+"is not supported. At this current time, only "+http.MethodGet+
-			"are supported", http.StatusNotImplemented)
-		return
-	} else {
-		handleGetRequestN(w, r)
-	}
-
-}
-
-func handleGetRequest(w http.ResponseWriter, r *http.Request) {
-	log.Println(r.URL.Path)
-	university := structs.UniAndCountry{
-		Name:     "NTNU",
-		Country:  "Norway",
-		Isocode:  "NO",
-		Webpages: []string{"http://www.ntnu.no/", "http://www.google.no/"},
-		Languages: map[string]string{"nno": "Norwegian Nynorsk",
-			"nob": "Norwegian Bokmål",
-			"smi": "Sami"},
-		Map: "https://www.openstreetmap.org/relation/2978650",
-	}
-
-	w.Header().Add("content-type", "application/json")
-
-	err := json.NewEncoder(w).Encode(university)
-
-	if err != nil {
-		http.Error(w, "Error during encoding: "+err.Error(), http.StatusInternalServerError)
-		return
+	for _, s := range DB.Db {
+		if value == s.Country {
+			err := json.NewEncoder(w).Encode(s)
+			if err != nil {
+				http.Error(w, "Error while returning output", http.StatusInternalServerError)
+			}
+		}
 	}
 
 	http.Error(w, "", http.StatusNoContent)
