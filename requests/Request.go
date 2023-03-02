@@ -1,8 +1,8 @@
-package request
+package requests
 
 import "net/http"
 
-func request(url string, method string) (*http.Response, error) {
+func Request(url string, method string) (*http.Response, error) {
 
 	req, err := http.NewRequest(method, url, nil)
 

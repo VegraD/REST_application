@@ -1,10 +1,13 @@
 package handler
 
 import (
-	"Assignment-1/DB"
+	"Assignment-1/constants"
+	"Assignment-1/requests"
+	"Assignment-1/structs"
 	"encoding/json"
+	"fmt"
+	"log"
 	"net/http"
-	"strings"
 )
 
 func UInfoHandler(w http.ResponseWriter, r *http.Request) {
@@ -22,29 +25,25 @@ func UInfoHandler(w http.ResponseWriter, r *http.Request) {
 
 func handleGetRequest(w http.ResponseWriter, r *http.Request) {
 
-	w.Header().Set("content-type", "application/json")
-	parts := strings.Split(r.URL.Path, "/")
+	resp, err := requests.Request(constants.UNI_URL+"search?name=middle&country=Turkey", http.MethodGet)
 
-	if len(parts) != 5 {
-		http.Error(w, "Too many arguments, please enter input as such: 'uniinfo/{country}'", http.StatusBadRequest)
-		return
-		//ERROR, NEED ONE MORE ARGUMENT
-	}
-	value := parts[4]
-	if len(value) == 0 {
-		http.Error(w, "Kindly provide a valid country name!", http.StatusBadRequest)
-		return
-		//ERROR, VALUE IS NULL AND NOT A VALID COUNTRY
+	if err != nil {
+		http.Error(w, "Error in response.", http.StatusBadRequest)
 	}
 
-	for _, s := range DB.Db {
-		if value == s.Country {
-			err := json.NewEncoder(w).Encode(s)
-			if err != nil {
-				http.Error(w, "Error while returning output", http.StatusInternalServerError)
-				return
-			}
-		}
+	decoder := json.NewDecoder(resp.Body)
+	var uni []structs.University
+	if err := decoder.Decode(&uni); err != nil {
+		log.Println(err)
+	}
+
+	fmt.Println(uni[0].AlphaTwoCode)
+
+	err = json.NewEncoder(w).Encode(uni)
+
+	if err != nil {
+		http.Error(w, "Error during encoding "+err.Error(), http.StatusInternalServerError)
+		return
 	}
 
 	http.Error(w, "", http.StatusNoContent)
