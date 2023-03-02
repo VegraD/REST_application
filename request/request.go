@@ -13,6 +13,8 @@ func request(url string, method string) (*http.Response, error) {
 	client := &http.Client{}
 	defer client.CloseIdleConnections()
 
+	req.Header.Add("content-type", "application/json")
+
 	resp, err := client.Do(req) //Do in case of extending application at a later point in time with more methods.
 
 	if err != nil {
