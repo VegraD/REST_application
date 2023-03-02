@@ -26,4 +26,11 @@ type Country struct {
 	Maps      map[string]string      `json:"maps"`
 }
 
-//TODO: Either implement marshalling/combining country and university below for easier workflow
+func ToUniAndCountry(country Country, uni University) UniAndCountry {
+	var newUni UniAndCountry
+
+	//TODO: Either implement marshalling or combining country and university info
+
+	return newUni
+
+}
