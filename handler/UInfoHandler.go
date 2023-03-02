@@ -3,40 +3,37 @@ package handler
 import (
 	"Assignment-1/DB"
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"strings"
 )
 
 func UInfoHandler(w http.ResponseWriter, r *http.Request) {
 
-	stdOutput := "Hello! Welcome to page!"
-
-	if r.Method != http.MethodGet {
-		http.Error(w, "Method "+r.Method+"is not supported. At this current time, only "+http.MethodGet+
-			"are supported", http.StatusNotImplemented)
+	switch r.Method {
+	case http.MethodGet:
+		handleGetRequest(w, r)
+	default:
+		http.Error(w, "REST method '"+r.Method+"' not currently supported. At this moment "+
+			"only '"+http.MethodGet+"' are supported.", http.StatusNotImplemented)
 		return
-	} else {
-		_, err := fmt.Fprintf(w, stdOutput)
-		if err != nil {
-			http.Error(w, "Error while returning output", http.StatusInternalServerError)
-		}
-		handleGetRequestN(w, r)
 	}
 
 }
 
 func handleGetRequest(w http.ResponseWriter, r *http.Request) {
 
-	w.Header().Add("content-type", "application/json")
+	w.Header().Set("content-type", "application/json")
 	parts := strings.Split(r.URL.Path, "/")
 
 	if len(parts) != 5 {
+		http.Error(w, "Too many arguments, please enter input as such: 'uniinfo/{country}'", http.StatusBadRequest)
+		return
 		//ERROR, NEED ONE MORE ARGUMENT
 	}
-
 	value := parts[4]
 	if len(value) == 0 {
+		http.Error(w, "Kindly provide a valid country name!", http.StatusBadRequest)
+		return
 		//ERROR, VALUE IS NULL AND NOT A VALID COUNTRY
 	}
 
@@ -45,6 +42,7 @@ func handleGetRequest(w http.ResponseWriter, r *http.Request) {
 			err := json.NewEncoder(w).Encode(s)
 			if err != nil {
 				http.Error(w, "Error while returning output", http.StatusInternalServerError)
+				return
 			}
 		}
 	}
