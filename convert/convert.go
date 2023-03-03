@@ -4,7 +4,7 @@ import (
 	"Assignment-1/structs"
 )
 
-func ToUniAndCountry(country structs.Country, uni structs.University) structs.UniAndCountry {
+func ToUniAndCountry(uni structs.University, country structs.Country) structs.UniAndCountry {
 	var newUni structs.UniAndCountry
 
 	newUni.Name = uni.Name
