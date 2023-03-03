@@ -5,7 +5,6 @@ import (
 	"Assignment-1/requests"
 	"Assignment-1/structs"
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
 )
@@ -25,7 +24,9 @@ func UInfoHandler(w http.ResponseWriter, r *http.Request) {
 
 func handleGetRequest(w http.ResponseWriter, r *http.Request) {
 
-	resp, err := requests.Request(constants.UNI_URL+"search?name=middle&country=Turkey", http.MethodGet)
+	//resp, err := requests.Request(constants.UNI_URL+"search?name=middle&country=Turkey", http.MethodGet)
+
+	resp, err := requests.Request(constants.UNI_URL+"search?name=technology&country=norway", http.MethodGet)
 
 	if err != nil {
 		http.Error(w, "Error in response.", http.StatusBadRequest)
@@ -37,7 +38,7 @@ func handleGetRequest(w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 	}
 
-	fmt.Println(uni[0].AlphaTwoCode)
+	w.Header().Add("content-type", "application/json")
 
 	err = json.NewEncoder(w).Encode(uni)
 
