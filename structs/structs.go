@@ -25,12 +25,3 @@ type Country struct {
 	Borders   []string               `json:"borders"`
 	Maps      map[string]string      `json:"maps"`
 }
-
-func ToUniAndCountry(country Country, uni University) UniAndCountry {
-	var newUni UniAndCountry
-
-	//TODO: Either implement marshalling or combining country and university info
-
-	return newUni
-
-}
