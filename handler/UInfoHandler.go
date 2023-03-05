@@ -25,29 +25,22 @@ func UInfoHandler(w http.ResponseWriter, r *http.Request) {
 
 func handleGetRequest(w http.ResponseWriter, r *http.Request) {
 	var unis []structs.University
-	var country []structs.Country
 	var unispluscountries []structs.UniAndCountry
 
 	sValue := getSearchValue(w, r)
-	//resp, err := requests.Request(constants.UNI_URL+"search?name=middle&country=Turkey", http.MethodGet)
 
 	unis = searchUniversities(w, sValue)
-	if len(unis) != 0 {
-		country = searchCountry(w, unis[0])
-	} else {
-		country = nil
-	}
 
-	if country != nil {
-		unispluscountries = combineCountries(unis, country)
-	}
+	countries := searchCountries(w, unis)
+
+	unispluscountries = combineUniAndCountry(w, unis, countries)
 
 	w.Header().Add("content-type", "application/json")
 
 	err := json.NewEncoder(w).Encode(unispluscountries)
 
 	if err != nil {
-		http.Error(w, "Error during encoding "+err.Error(), http.StatusInternalServerError)
+		http.Error(w, "Error during encoding of unis and countries "+err.Error(), http.StatusInternalServerError)
 		return
 	}
 
@@ -61,13 +54,13 @@ func getSearchValue(w http.ResponseWriter, r *http.Request) string {
 	parts := strings.Split(r.URL.Path, "/")
 
 	if len(parts) != 5 {
-		http.Error(w, "Too many arguments, please enter input as such: 'uniinfo/{country}'", http.StatusBadRequest)
+		http.Error(w, "Too many arguments, please enter input as such: 'uniinfo/{name/partial name}'", http.StatusBadRequest)
 		return ""
 		//ERROR, NEED ONE MORE ARGUMENT
 	}
 	value := parts[4]
 	if len(value) == 0 {
-		http.Error(w, "Kindly provide a valid country name!", http.StatusBadRequest)
+		http.Error(w, "Kindly provide a valid university name!", http.StatusBadRequest)
 		return ""
 		//ERROR, VALUE IS NULL AND NOT A VALID COUNTRY
 	}
@@ -77,7 +70,13 @@ func getSearchValue(w http.ResponseWriter, r *http.Request) string {
 
 // KAN VURDERE Å FLYTTE TIL REQUEST
 func searchUniversities(w http.ResponseWriter, value string) []structs.University {
+
 	var unis []structs.University
+
+	if value == "" {
+		http.Error(w, "University search not possible!", http.StatusBadRequest)
+		return nil
+	}
 
 	resp, err := requests.Request(constants.UNI_URL+
 		"search?name="+value, http.MethodGet)
@@ -93,32 +92,39 @@ func searchUniversities(w http.ResponseWriter, value string) []structs.Universit
 }
 
 // KAN VURDERE Å FLYTTE TIL REQUEST
-func searchCountry(w http.ResponseWriter, uni structs.University) []structs.Country {
-	var country []structs.Country
-
-	resp, err := requests.Request(constants.COUNTRIES_URL+"v3.1/name/"+uni.Country, http.MethodGet)
+func searchCountries(w http.ResponseWriter, unis []structs.University) []structs.Country {
+	var countries []structs.Country
+	var countryCodes string
+	for _, i := range unis {
+		countryCodes += i.AlphaTwoCode + ","
+	}
+	resp, err := requests.Request(constants.COUNTRIES_URL+"v3.1/alpha?codes="+countryCodes, http.MethodGet)
 	if err != nil {
 		http.Error(w, "Error in response.", http.StatusBadRequest)
 		return nil
 	}
 	decoder := json.NewDecoder(resp.Body)
-	if err := decoder.Decode(&country); err != nil {
+	err = decoder.Decode(&countries)
+	if err != nil {
 		http.Error(w, "Error in country decoding", http.StatusInternalServerError)
 		return nil
+	} else {
+
 	}
 
-	return country
+	return countries
 }
 
-func combineCountries(unis []structs.University, countries []structs.Country) []structs.UniAndCountry {
+func combineUniAndCountry(w http.ResponseWriter, unis []structs.University, countries []structs.Country) []structs.UniAndCountry {
 	var outputs []structs.UniAndCountry
 
-	if countries != nil {
-		country := countries[0]
-		for _, i := range unis {
-			outputs = append(outputs, convert.ToUniAndCountry(i, country))
+	for _, i := range unis {
+		for _, j := range countries {
+			if i.Country == j.Name["common"] {
+				outputs = append(outputs, convert.ToUniAndCountry(i, j))
+			}
 		}
-	}
 
+	}
 	return outputs
 }
