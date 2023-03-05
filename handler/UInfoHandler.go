@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"Assignment-1/constants"
 	"Assignment-1/convert"
 	"Assignment-1/requests"
 	"Assignment-1/structs"
@@ -29,11 +28,15 @@ func handleGetRequest(w http.ResponseWriter, r *http.Request) {
 
 	sValue := getSearchValue(w, r)
 
-	unis = searchUniversities(w, sValue)
+	unis = requests.RequestUniversities(sValue)
 
-	countries := searchCountries(w, unis)
+	countries := requests.RequestUniCountries(unis)
 
-	unispluscountries = combineUniAndCountry(w, unis, countries)
+	if countries != nil && unis != nil {
+		unispluscountries = combineUniAndCountry(unis, countries)
+	} else {
+		http.Error(w, "No results to show! Please try another search!", http.StatusBadRequest)
+	}
 
 	w.Header().Add("content-type", "application/json")
 
@@ -47,9 +50,7 @@ func handleGetRequest(w http.ResponseWriter, r *http.Request) {
 	http.Error(w, "", http.StatusNoContent)
 }
 
-//TODO: Method for combining when there are several universities
-//TODO: Method for requesting university + country separately
-
+// TODO: FIX SO DOES NOT TAKE IN w
 func getSearchValue(w http.ResponseWriter, r *http.Request) string {
 	parts := strings.Split(r.URL.Path, "/")
 
@@ -68,54 +69,7 @@ func getSearchValue(w http.ResponseWriter, r *http.Request) string {
 	return parts[4]
 }
 
-// KAN VURDERE Å FLYTTE TIL REQUEST
-func searchUniversities(w http.ResponseWriter, value string) []structs.University {
-
-	var unis []structs.University
-
-	if value == "" {
-		http.Error(w, "University search not possible!", http.StatusBadRequest)
-		return nil
-	}
-
-	resp, err := requests.Request(constants.UNI_URL+
-		"search?name="+value, http.MethodGet)
-	if err != nil {
-		http.Error(w, "Error in response.", http.StatusBadRequest)
-	}
-
-	decoder := json.NewDecoder(resp.Body)
-	if err := decoder.Decode(&unis); err != nil {
-		http.Error(w, "Error in university decoding.", http.StatusInternalServerError)
-	}
-	return unis
-}
-
-// KAN VURDERE Å FLYTTE TIL REQUEST
-func searchCountries(w http.ResponseWriter, unis []structs.University) []structs.Country {
-	var countries []structs.Country
-	var countryCodes string
-	for _, i := range unis {
-		countryCodes += i.AlphaTwoCode + ","
-	}
-	resp, err := requests.Request(constants.COUNTRIES_URL+"v3.1/alpha?codes="+countryCodes, http.MethodGet)
-	if err != nil {
-		http.Error(w, "Error in response.", http.StatusBadRequest)
-		return nil
-	}
-	decoder := json.NewDecoder(resp.Body)
-	err = decoder.Decode(&countries)
-	if err != nil {
-		http.Error(w, "Error in country decoding", http.StatusInternalServerError)
-		return nil
-	} else {
-
-	}
-
-	return countries
-}
-
-func combineUniAndCountry(w http.ResponseWriter, unis []structs.University, countries []structs.Country) []structs.UniAndCountry {
+func combineUniAndCountry(unis []structs.University, countries []structs.Country) []structs.UniAndCountry {
 	var outputs []structs.UniAndCountry
 
 	for _, i := range unis {
