@@ -13,7 +13,7 @@ func UInfoHandler(w http.ResponseWriter, r *http.Request) {
 
 	switch r.Method {
 	case http.MethodGet:
-		handleGetRequest(w, r)
+		handleGetRequestU(w, r)
 	default:
 		http.Error(w, "REST method '"+r.Method+"' not currently supported. At this moment "+
 			"only '"+http.MethodGet+"' are supported.", http.StatusNotImplemented)
@@ -22,7 +22,7 @@ func UInfoHandler(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func handleGetRequest(w http.ResponseWriter, r *http.Request) {
+func handleGetRequestU(w http.ResponseWriter, r *http.Request) {
 	var unis []structs.University
 	var unispluscountries []structs.UniAndCountry
 
@@ -33,7 +33,7 @@ func handleGetRequest(w http.ResponseWriter, r *http.Request) {
 	countries := requests.RequestUniCountries(unis)
 
 	if countries != nil && unis != nil {
-		unispluscountries = combineUniAndCountry(unis, countries)
+		unispluscountries = CombineUniAndCountry(unis, countries)
 	} else {
 		http.Error(w, "No results to show! Please try another search!", http.StatusBadRequest)
 	}
@@ -50,12 +50,12 @@ func handleGetRequest(w http.ResponseWriter, r *http.Request) {
 	http.Error(w, "", http.StatusNoContent)
 }
 
-// TODO: FIX SO DOES NOT TAKE IN w
 func getSearchValue(w http.ResponseWriter, r *http.Request) string {
 	parts := strings.Split(r.URL.Path, "/")
 
 	if len(parts) != 5 {
-		http.Error(w, "Too many arguments, please enter input as such: 'uniinfo/{name/partial name}'", http.StatusBadRequest)
+		http.Error(w, "Too many arguments, please enter input as such: "+
+			"'uniinfo/{partial_or_complete_university_name}'", http.StatusBadRequest)
 		return ""
 		//ERROR, NEED ONE MORE ARGUMENT
 	}
@@ -66,10 +66,11 @@ func getSearchValue(w http.ResponseWriter, r *http.Request) string {
 		//ERROR, VALUE IS NULL AND NOT A VALID COUNTRY
 	}
 
-	return parts[4]
+	return value
 }
 
-func combineUniAndCountry(unis []structs.University, countries []structs.Country) []structs.UniAndCountry {
+// TODO: ADD IN CONVERT PACKAGE OR SOMETHING SIMILAR
+func CombineUniAndCountry(unis []structs.University, countries []structs.Country) []structs.UniAndCountry {
 	var outputs []structs.UniAndCountry
 
 	for _, i := range unis {
