@@ -24,4 +24,6 @@ type Country struct {
 	Languages map[string]string      `json:"languages"`
 	Borders   []string               `json:"borders"`
 	Maps      map[string]string      `json:"maps"`
+	CCA2      string                 `json:"cca2"`
+	CCA3      string                 `json:"cca3"`
 }
