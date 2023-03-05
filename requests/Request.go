@@ -1,8 +1,13 @@
 package requests
 
-import "net/http"
+import (
+	"net/http"
+	"strings"
+)
 
 func Request(url string, method string) (*http.Response, error) {
+
+	url = strings.ReplaceAll(url, " ", "%20")
 
 	req, err := http.NewRequest(method, url, nil)
 
