@@ -72,3 +72,25 @@ func RequestUniCountries(unis []structs.University) []structs.Country {
 
 	return countries
 }
+
+func RequestCountriesByCCA(CCAS []string) []structs.Country {
+	var countries []structs.Country
+	var countryCodes string
+
+	for _, i := range CCAS {
+		countryCodes += i + ","
+	}
+	resp, err := Request(constants.COUNTRIES_URL+"v3.1/alpha?codes="+countryCodes, http.MethodGet)
+	if err != nil {
+		return nil
+	}
+
+	decoder := json.NewDecoder(resp.Body)
+	err = decoder.Decode(&countries)
+
+	if err != nil {
+		return nil
+	}
+
+	return countries
+}
