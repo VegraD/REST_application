@@ -1,7 +1,6 @@
 package main
 
 import (
-	"Assignment-1/DB"
 	"Assignment-1/constants"
 	"Assignment-1/handler"
 	"log"
@@ -21,8 +20,6 @@ func main() {
 	http.HandleFunc(constants.UINFO_PATH, handler.UInfoHandler)           //Acquiring uni information
 	http.HandleFunc(constants.UNEIGHBOUR_PATH, handler.UNeighbourHandler) //Acquiring neighbour unis
 	http.HandleFunc(constants.DIAG_PATH, handler.DiagHandler)             //Diagnostics handler
-
-	DB.InitStudentsStorage()
 
 	log.Println("Server initiating on port " + port + " .")
 	log.Fatal(http.ListenAndServe(":"+port, nil))
