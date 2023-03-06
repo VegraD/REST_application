@@ -7,6 +7,7 @@ import (
 	"Assignment-1/structs"
 	"encoding/json"
 	"net/http"
+	"strconv"
 	"strings"
 )
 
@@ -41,8 +42,8 @@ func handleGetRequestN(w http.ResponseWriter, r *http.Request) {
 
 	//TODO: CAN ABSTRACT LATER INTO COMMON FUNCTION WHICH TAKES AN "lines" parameter
 	countryValue := getCountryName(w, r)
-
 	uniValue := getUniName(w, r)
+	limit := getLimit(w, r)
 
 	resp, err := requests.Request(constants.COUNTRIES_URL+"v3.1/name/"+countryValue, http.MethodGet)
 
@@ -65,7 +66,7 @@ func handleGetRequestN(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if country != nil && unis != nil {
-		unispluscountries = combine.CombineUniAndCountry(unis, country)
+		unispluscountries = combine.CombineUniAndCountry(unis, country, limit)
 	} else {
 		http.Error(w, "No results to show! Please try another search!", http.StatusBadRequest)
 	}
@@ -113,18 +114,60 @@ A function for finding the search word (uni) of the users request (r).
 Returns the user request in string format.
 */
 func getUniName(w http.ResponseWriter, r *http.Request) string {
+	var value string
 	parts := strings.Split(r.URL.Path, "/")
+	name := strings.Split(parts[5], "?")
 
 	if len(parts) > 7 {
 		http.Error(w, "Too many arguments, please enter input as such: "+
-			"'neighbourunis/{country_name}/{partial_or_complete_university_name}'", http.StatusBadRequest)
+			"'neighbourunis/{country_name}/{partial_or_complete_university_name}{?limit={:number}}'", http.StatusBadRequest)
 		return ""
 	}
-	value := parts[5]
+	if name != nil {
+		value = name[0]
+	} else {
+		value = parts[5]
+	}
+
 	if len(value) == 0 {
 		http.Error(w, "Kindly provide a valid university name!", http.StatusBadRequest)
 		return ""
 	}
 
 	return value
+}
+
+func getLimit(w http.ResponseWriter, r *http.Request) int {
+	var number []string
+	var parts []string
+
+	//If user has specified limit
+	if strings.Contains(r.URL.RequestURI(), "?") {
+		parts = strings.Split(r.URL.RequestURI(), "?")
+	} else {
+		return 0
+	}
+
+	//If parts is valid, and no / is in the string
+	if parts != nil && !strings.Contains(parts[1], "/") {
+		number = strings.Split(parts[1], "=")
+	} else {
+		http.Error(w, "Please enter value without a '/' in the end!", http.StatusBadRequest)
+		return -1
+	}
+
+	if len(parts) > 2 {
+		http.Error(w, "Invalid search, please enter input as such: "+
+			"'neighbourunis/{country_name}/{partial_or_complete_university_name}{?limit={:number}}'", http.StatusBadRequest)
+		return -1
+	}
+
+	//convert string to integer
+	limit, err := strconv.Atoi(number[1])
+	if limit == 0 || err != nil {
+		http.Error(w, "Kindly provide a valid limit!", http.StatusBadRequest)
+		return -1
+	}
+
+	return limit
 }
