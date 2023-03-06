@@ -11,6 +11,7 @@ import (
 
 func UNeighbourHandler(w http.ResponseWriter, r *http.Request) {
 
+	//TODO: IMPLEMENTER LIMIT
 	switch r.Method {
 	case http.MethodGet:
 		handleGetRequestN(w, r)
@@ -33,23 +34,26 @@ func handleGetRequestN(w http.ResponseWriter, r *http.Request) {
 
 	resp, err := requests.Request(constants.COUNTRIES_URL+"v3.1/name/"+countryValue, http.MethodGet)
 
-	decoder := json.NewDecoder(resp.Body)
-	err = decoder.Decode(&country)
-
 	if err != nil {
+		http.Error(w, "Faulty request", http.StatusInternalServerError)
+		return
+	}
+
+	decoder := json.NewDecoder(resp.Body)
+	errC := decoder.Decode(&country)
+
+	if errC != nil {
 		http.Error(w, "Error while decoding country values", http.StatusInternalServerError)
 	}
 
-	borderCountries := requests.RequestCountriesByCCA(country[0].Borders)
-
 	unis := requests.RequestUniversities(uniValue)
 
-	//Finne countryValue sine borders[]
-	//requeste disse countriesene
-	//Finne universities for disse landene gjennom requestcountries
-	//5
-	if borderCountries != nil && unis != nil {
-		unispluscountries = CombineUniAndCountry(unis, borderCountries)
+	if country != nil {
+		country = requests.RequestCountriesByCCA(country[0].Borders)
+	}
+
+	if country != nil && unis != nil {
+		unispluscountries = CombineUniAndCountry(unis, country)
 	} else {
 		http.Error(w, "No results to show! Please try another search!", http.StatusBadRequest)
 	}
@@ -67,9 +71,9 @@ func handleGetRequestN(w http.ResponseWriter, r *http.Request) {
 }
 
 func getCountryName(w http.ResponseWriter, r *http.Request) string {
-	parts := strings.Split(r.URL.Path, "/")
+	parts := strings.Split(r.URL.String(), "/")
 
-	if len(parts) != 6 {
+	if len(parts) > 7 {
 		http.Error(w, "Too many arguments, please enter input as such: "+
 			"'neighbourunis/{country_name}/{partial_or_complete_university_name}'", http.StatusBadRequest)
 		return ""
@@ -88,7 +92,7 @@ func getCountryName(w http.ResponseWriter, r *http.Request) string {
 func getUniName(w http.ResponseWriter, r *http.Request) string {
 	parts := strings.Split(r.URL.Path, "/")
 
-	if len(parts) != 6 {
+	if len(parts) > 7 {
 		http.Error(w, "Too many arguments, please enter input as such: "+
 			"'neighbourunis/{country_name}/{partial_or_complete_university_name}'", http.StatusBadRequest)
 		return ""

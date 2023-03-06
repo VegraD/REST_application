@@ -13,20 +13,19 @@ func Request(url string, method string) (*http.Response, error) {
 	url = strings.ReplaceAll(url, " ", "%20")
 
 	req, err := http.NewRequest(method, url, nil)
-
+	
 	if err != nil {
 		return nil, err
 	}
 
-	client := &http.Client{}
-	defer client.CloseIdleConnections()
-
 	req.Header.Add("content-type", "application/json")
 
-	resp, err := client.Do(req) //Do in case of extending application at a later point in time with more methods.
+	client := &http.Client{}
 
-	if err != nil {
-		return nil, err
+	resp, errC := client.Do(req) //Do in case of extending application at a later point in time with more methods.
+
+	if errC != nil {
+		return nil, errC
 	}
 
 	return resp, nil
@@ -73,6 +72,7 @@ func RequestUniCountries(unis []structs.University) []structs.Country {
 	return countries
 }
 
+// KAN VURDERE Å SAMMENSVEISE DENNE MED DEN OVER!!!
 func RequestCountriesByCCA(CCAS []string) []structs.Country {
 	var countries []structs.Country
 	var countryCodes string
