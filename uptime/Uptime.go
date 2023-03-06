@@ -13,9 +13,6 @@ func Init() {
 }
 
 // Return the uptime in seconds as a string
-func GetUptime() string {
-
-	uptime := time.Since(startTime)
-
-	return uptime.String()
+func GetUptime() int {
+	return int(time.Since(startTime).Seconds())
 }
