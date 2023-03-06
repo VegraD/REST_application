@@ -47,7 +47,7 @@ func handleGetRequestU(w http.ResponseWriter, r *http.Request) {
 
 	// if neither countries nor unis are valid, show error
 	if countries != nil && unis != nil {
-		unispluscountries = combine.CombineUniAndCountry(unis, countries)
+		unispluscountries = combine.CombineUniAndCountry(unis, countries, 0)
 	} else {
 		http.Error(w, "No results to show! Please try another search!", http.StatusBadRequest)
 	}
