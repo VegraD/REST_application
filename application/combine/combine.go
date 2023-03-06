@@ -3,7 +3,6 @@ package combine
 import (
 	"Assignment-1/application/convert"
 	"Assignment-1/structs"
-	"fmt"
 )
 
 /*
@@ -18,7 +17,6 @@ Returns a slice of UniAndCountry structs.
 */
 func CombineUniAndCountry(unis []structs.University, countries []structs.Country, limit int) []structs.UniAndCountry {
 	var outputs []structs.UniAndCountry
-	fmt.Println(limit)
 	for _, i := range unis {
 		for _, j := range countries {
 			if i.Country == j.Name["common"] {
