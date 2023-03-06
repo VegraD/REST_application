@@ -2,23 +2,61 @@ package handler
 
 import (
 	"Assignment-1/constants"
+	"Assignment-1/requests"
+	"Assignment-1/structs"
+	"encoding/json"
 	"fmt"
 	"net/http"
 )
 
 func DiagHandler(w http.ResponseWriter, r *http.Request) {
 
-	w.Header().Set("content-type", "text/html")
-
-	output := "Service does not provide any functionality on root path. Please use the" +
-		"following paths: " + "<a href=\"v1\"" + constants.UINFO_PATH + "\">" + constants.UINFO_PATH + "</a> " +
-		"to view university information. Or <a href=\"v1\"" + constants.UNEIGHBOUR_PATH + "\">" +
-		constants.UNEIGHBOUR_PATH + "</a> to find neighbour universities!"
-
-	_, err := fmt.Fprintf(w, "%v", output)
-
-	if err != nil {
-		http.Error(w, "Error while returning output", http.StatusInternalServerError)
+	switch r.Method {
+	case http.MethodGet:
+		handleGetRequestDiag(w, r)
+	default:
+		http.Error(w, "REST method '"+r.Method+"' not currently supported. At this moment "+
+			"only '"+http.MethodGet+"' are supported.", http.StatusNotImplemented)
+		return
 	}
 
+}
+
+func handleGetRequestDiag(w http.ResponseWriter, r *http.Request) {
+
+	uReq, err := requests.Request(constants.UNI_URL+"search?name=", http.MethodGet)
+	if err != nil {
+		http.Error(w, "Error in fething university request.", http.StatusInternalServerError)
+		return
+	}
+
+	cReq, err := requests.Request(constants.COUNTRIES_URL+"v3.1/all", http.MethodGet)
+	if err != nil {
+		http.Error(w, "Error in fething country request.", http.StatusInternalServerError)
+		return
+	}
+	universityResp := uReq.StatusCode
+
+	countryResp := cReq.StatusCode
+
+	diag := structs.Diagnostics{
+		UniAPI:     fmt.Sprintf("%d", universityResp),
+		CountryAPI: fmt.Sprintf("%d", countryResp),
+		Version:    "v1",
+		Uptime:     "",
+	}
+
+	w.Header().Add("content-type", "application/json")
+
+	err = json.NewEncoder(w).Encode(diag)
+
+	if err != nil {
+		http.Error(w, "Error during encoding of diagnostics "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	http.Error(w, "", http.StatusNoContent)
+	//sende generelle requests til både UNIAPI og COUNTRYAPI og finne statuskodene
+	//Putte gitte statuskoder inn i structs.
+	//LAGE uptime.go som sjekker hvor lenge nettside har vært oppe i
 }
