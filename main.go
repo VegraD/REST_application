@@ -3,6 +3,7 @@ package main
 import (
 	"Assignment-1/constants"
 	"Assignment-1/handler"
+	"Assignment-1/uptime"
 	"log"
 	"net/http"
 	"os"
@@ -22,6 +23,7 @@ func main() {
 	http.HandleFunc(constants.DIAG_PATH, handler.DiagHandler)             //Diagnostics handler
 
 	log.Println("Server initiating on port " + port + " .")
+	uptime.Init()
 	log.Fatal(http.ListenAndServe(":"+port, nil))
 
 }
