@@ -1,4 +1,4 @@
-package handler
+package handlers
 
 import (
 	"Assignment-1/constants"
@@ -7,7 +7,7 @@ import (
 )
 
 /*
-The default handler of the application. Returns recommended actions for users to take.
+The default handlers of the application. Returns recommended actions for users to take.
 Parameters:
 
 	w: ResponseWriter (user of application) to write error message to.

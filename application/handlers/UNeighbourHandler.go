@@ -1,9 +1,9 @@
-package handler
+package handlers
 
 import (
-	"Assignment-1/combine"
+	"Assignment-1/application/combine"
+	"Assignment-1/application/requests"
 	"Assignment-1/constants"
-	"Assignment-1/requests"
 	"Assignment-1/structs"
 	"encoding/json"
 	"net/http"
@@ -11,8 +11,9 @@ import (
 )
 
 /*
-A handler for the university neighbour searcher part of the application.
+A handlers for the university neighbour searcher part of the application.
 Parameters:
+
 	w: ResponseWriter (user of application) to write error message to.
 	r: A request pointer given by the user
 */

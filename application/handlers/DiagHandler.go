@@ -1,8 +1,8 @@
-package handler
+package handlers
 
 import (
+	"Assignment-1/application/requests"
 	"Assignment-1/constants"
-	"Assignment-1/requests"
 	"Assignment-1/structs"
 	"Assignment-1/uptime"
 	"encoding/json"
@@ -11,7 +11,7 @@ import (
 )
 
 /*
-A handler for the /diag path of the application. When accessed, provides information regarding the uptime of the server.
+A handlers for the /diag path of the application. When accessed, provides information regarding the uptime of the server.
 Parameters:
 	w: ResponseWriter (user of application) to write error message to.
 	r: A request pointer given by the user

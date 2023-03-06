@@ -1,7 +1,7 @@
 package combine
 
 import (
-	"Assignment-1/convert"
+	"Assignment-1/application/convert"
 	"Assignment-1/structs"
 )
 
