@@ -81,6 +81,6 @@ func getDiag(w http.ResponseWriter) structs.Diagnostic {
 		UniAPI:     fmt.Sprintf("%d", universityResp),
 		CountryAPI: fmt.Sprintf("%d", countryResp),
 		Version:    "v1",
-		Uptime:     fmt.Sprintf("%d", uptime.GetUptime()),
+		Uptime:     fmt.Sprintf("%d s", uptime.GetUptime()),
 	}
 }
