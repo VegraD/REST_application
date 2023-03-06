@@ -27,3 +27,10 @@ type Country struct {
 	CCA2      string                 `json:"cca2"`
 	CCA3      string                 `json:"cca3"`
 }
+
+type Diagnostics struct {
+	UniAPI     string `json:"universitiesapi"`
+	CountryAPI string `json:"countriesapi"`
+	Version    string `json:"version"`
+	Uptime     string `json:"uptime"`
+}
