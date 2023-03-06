@@ -10,8 +10,16 @@ import (
 	"net/http"
 )
 
+/*
+A handler for the /diag path of the application. When accessed, provides information regarding the uptime of the server.
+Parameters:
+	w: ResponseWriter (user of application) to write error message to.
+	r: A request pointer given by the user
+*/
+
 func DiagHandler(w http.ResponseWriter, r *http.Request) {
 
+	//Use switch case to more easily extend application in the future
 	switch r.Method {
 	case http.MethodGet:
 		handleGetRequestDiag(w, r)
@@ -23,6 +31,7 @@ func DiagHandler(w http.ResponseWriter, r *http.Request) {
 
 }
 
+// A function for handling get requests on the /diag path.
 func handleGetRequestDiag(w http.ResponseWriter, r *http.Request) {
 
 	diag := getDiag(w)
@@ -31,31 +40,41 @@ func handleGetRequestDiag(w http.ResponseWriter, r *http.Request) {
 
 	err := json.NewEncoder(w).Encode(diag)
 
+	// Returns if encoding is faulty
 	if err != nil {
 		http.Error(w, "Error during encoding of diagnostics "+err.Error(), http.StatusInternalServerError)
 		return
 	}
 
+	// No content if no action is taken above this point.
 	http.Error(w, "", http.StatusNoContent)
-	//sende generelle requests til både UNIAPI og COUNTRYAPI og finne statuskodene
-	//Putte gitte statuskoder inn i structs.
-	//LAGE uptime.go som sjekker hvor lenge nettside har vært oppe i
 }
 
+/*
+A function for acquiring the diagnostics struct.
+Parameters:
+
+	w: ResponseWriter (user of application) to write error message to (here: optional).
+
+Returns a Diagnostics struct filled with upkeep information about the server.
+*/
 func getDiag(w http.ResponseWriter) structs.Diagnostic {
+	// Requests a response from the APIs
 	uReq, err := requests.Request(constants.UNI_URL+"search?name=", http.MethodGet)
+
+	// return empty struct if request is faulty
 	if err != nil {
-		http.Error(w, "Error in fething university request.", http.StatusInternalServerError)
+		http.Error(w, "Error in fetching university request.", http.StatusInternalServerError)
 		return structs.Diagnostic{}
 	}
 
 	cReq, err := requests.Request(constants.COUNTRIES_URL+"v3.1/all", http.MethodGet)
 	if err != nil {
-		http.Error(w, "Error in fething country request.", http.StatusInternalServerError)
+		http.Error(w, "Error in fetching country request.", http.StatusInternalServerError)
 		return structs.Diagnostic{}
 	}
-	universityResp := uReq.StatusCode
 
+	universityResp := uReq.StatusCode
 	countryResp := cReq.StatusCode
 
 	return structs.Diagnostic{

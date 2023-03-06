@@ -1,7 +1,7 @@
 package handler
 
 import (
-	"Assignment-1/convert"
+	"Assignment-1/combine"
 	"Assignment-1/requests"
 	"Assignment-1/structs"
 	"encoding/json"
@@ -9,8 +9,16 @@ import (
 	"strings"
 )
 
+/*
+A handler for the university info page of the application.
+Parameters:
+
+	w: ResponseWriter (user of application) to write error message to.
+	r: A request pointer given by the user
+*/
 func UInfoHandler(w http.ResponseWriter, r *http.Request) {
 
+	//Use switch case to more easily extend application in the future
 	switch r.Method {
 	case http.MethodGet:
 		handleGetRequestU(w, r)
@@ -22,18 +30,24 @@ func UInfoHandler(w http.ResponseWriter, r *http.Request) {
 
 }
 
+/*
+A function for handling a get-request for the university info page.
+*/
 func handleGetRequestU(w http.ResponseWriter, r *http.Request) {
+	// Preallocating variables
 	var unis []structs.University
 	var unispluscountries []structs.UniAndCountry
 
+	//search value given by user
 	sValue := getSearchValue(w, r)
 
 	unis = requests.RequestUniversities(sValue)
 
 	countries := requests.RequestUniCountries(unis)
 
+	// if neither countries nor unis are valid, show error
 	if countries != nil && unis != nil {
-		unispluscountries = CombineUniAndCountry(unis, countries)
+		unispluscountries = combine.CombineUniAndCountry(unis, countries)
 	} else {
 		http.Error(w, "No results to show! Please try another search!", http.StatusBadRequest)
 	}
@@ -47,9 +61,11 @@ func handleGetRequestU(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// No content if no action is taken above this point.
 	http.Error(w, "", http.StatusNoContent)
 }
 
+// TODO: ABSTRAHER
 func getSearchValue(w http.ResponseWriter, r *http.Request) string {
 	parts := strings.Split(r.URL.Path, "/")
 
@@ -67,19 +83,4 @@ func getSearchValue(w http.ResponseWriter, r *http.Request) string {
 	}
 
 	return value
-}
-
-// TODO: ADD IN CONVERT PACKAGE OR SOMETHING SIMILAR
-func CombineUniAndCountry(unis []structs.University, countries []structs.Country) []structs.UniAndCountry {
-	var outputs []structs.UniAndCountry
-
-	for _, i := range unis {
-		for _, j := range countries {
-			if i.Country == j.Name["common"] {
-				outputs = append(outputs, convert.ToUniAndCountry(i, j))
-			}
-		}
-
-	}
-	return outputs
 }

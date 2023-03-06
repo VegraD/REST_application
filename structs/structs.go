@@ -28,6 +28,7 @@ type Country struct {
 	CCA3      string                 `json:"cca3"`
 }
 
+// Diagnostic struct displayed in the /diag path
 type Diagnostic struct {
 	UniAPI     string `json:"universitiesapi"`
 	CountryAPI string `json:"countriesapi"`

@@ -6,6 +6,13 @@ import (
 	"net/http"
 )
 
+/*
+The default handler of the application. Returns recommended actions for users to take.
+Parameters:
+
+	w: ResponseWriter (user of application) to write error message to.
+	r: A request pointer given by the user
+*/
 func DefaultHandler(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("content-type", "text/html")

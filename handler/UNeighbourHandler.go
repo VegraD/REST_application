@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"Assignment-1/combine"
 	"Assignment-1/constants"
 	"Assignment-1/requests"
 	"Assignment-1/structs"
@@ -9,8 +10,15 @@ import (
 	"strings"
 )
 
+/*
+A handler for the university neighbour searcher part of the application.
+Parameters:
+	w: ResponseWriter (user of application) to write error message to.
+	r: A request pointer given by the user
+*/
 func UNeighbourHandler(w http.ResponseWriter, r *http.Request) {
 
+	//Use switch case to more easily extend application in the future
 	//TODO: IMPLEMENTER LIMIT
 	switch r.Method {
 	case http.MethodGet:
@@ -23,6 +31,9 @@ func UNeighbourHandler(w http.ResponseWriter, r *http.Request) {
 
 }
 
+/*
+A function for handling a get-request for the university neighbour page.
+*/
 func handleGetRequestN(w http.ResponseWriter, r *http.Request) {
 	var unispluscountries []structs.UniAndCountry
 	var country []structs.Country
@@ -53,7 +64,7 @@ func handleGetRequestN(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if country != nil && unis != nil {
-		unispluscountries = CombineUniAndCountry(unis, country)
+		unispluscountries = combine.CombineUniAndCountry(unis, country)
 	} else {
 		http.Error(w, "No results to show! Please try another search!", http.StatusBadRequest)
 	}
@@ -67,9 +78,15 @@ func handleGetRequestN(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// No content if no action is taken above this point.
 	http.Error(w, "", http.StatusNoContent)
 }
 
+/*
+A function for finding the search word (country) of the users request (r).
+
+Returns the user request in string format.
+*/
 func getCountryName(w http.ResponseWriter, r *http.Request) string {
 	parts := strings.Split(r.URL.String(), "/")
 
@@ -77,18 +94,23 @@ func getCountryName(w http.ResponseWriter, r *http.Request) string {
 		http.Error(w, "Too many arguments, please enter input as such: "+
 			"'neighbourunis/{country_name}/{partial_or_complete_university_name}'", http.StatusBadRequest)
 		return ""
-		//ERROR, NEED ONE MORE ARGUMENT
+		//ERROR, NEED LESS ARGUMENTS
 	}
 	value := parts[4]
 	if len(value) == 0 {
 		http.Error(w, "Kindly provide a valid country name!", http.StatusBadRequest)
 		return ""
-		//ERROR, VALUE IS NULL AND NOT A VALID COUNTRY
+		//ERROR, VALUE IS EMPTY AND NOT A VALID COUNTRY
 	}
 
 	return value
 }
 
+/*
+A function for finding the search word (uni) of the users request (r).
+
+Returns the user request in string format.
+*/
 func getUniName(w http.ResponseWriter, r *http.Request) string {
 	parts := strings.Split(r.URL.Path, "/")
 
@@ -96,13 +118,11 @@ func getUniName(w http.ResponseWriter, r *http.Request) string {
 		http.Error(w, "Too many arguments, please enter input as such: "+
 			"'neighbourunis/{country_name}/{partial_or_complete_university_name}'", http.StatusBadRequest)
 		return ""
-		//ERROR, NEED ONE MORE ARGUMENT
 	}
 	value := parts[5]
 	if len(value) == 0 {
 		http.Error(w, "Kindly provide a valid university name!", http.StatusBadRequest)
 		return ""
-		//ERROR, VALUE IS NULL AND NOT A VALID COUNTRY
 	}
 
 	return value
