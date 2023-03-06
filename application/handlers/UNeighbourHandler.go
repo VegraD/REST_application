@@ -40,7 +40,6 @@ func handleGetRequestN(w http.ResponseWriter, r *http.Request) {
 	var unispluscountries []structs.UniAndCountry
 	var country []structs.Country
 
-	//TODO: CAN ABSTRACT LATER INTO COMMON FUNCTION WHICH TAKES AN "lines" parameter
 	countryValue := getCountryName(w, r)
 	uniValue := getUniName(w, r)
 	limit := getLimit(w, r)
@@ -137,6 +136,11 @@ func getUniName(w http.ResponseWriter, r *http.Request) string {
 	return value
 }
 
+/*
+A function for finding the limit of the users request (r).
+
+Returns the limit as an integer.
+*/
 func getLimit(w http.ResponseWriter, r *http.Request) int {
 	var number []string
 	var parts []string

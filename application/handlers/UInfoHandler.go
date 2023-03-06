@@ -65,7 +65,11 @@ func handleGetRequestU(w http.ResponseWriter, r *http.Request) {
 	http.Error(w, "", http.StatusNoContent)
 }
 
-// TODO: ABSTRAHER
+/*
+A function for finding the search word (uni) of the users request (r).
+
+Returns the user request in string format.
+*/
 func getSearchValue(w http.ResponseWriter, r *http.Request) string {
 	parts := strings.Split(r.URL.Path, "/")
 
